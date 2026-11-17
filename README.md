@@ -8,21 +8,39 @@ Designed and created by **VASCO**.
 
 ## Key Highlights
 
+- **Pre-compiled Distribution**: Ready-to-run pre-compiled `dist/` directory included directly in the repository—no build or compile steps needed after cloning.
 - **Dependency-Aware Context Slicing**: When focusing on specific files (`--focus <file_or_diff>`), target files are packaged in full text, direct 1-hop dependencies/importers are reduced to lightweight AST skeletons, and remaining codebase files are summarized as a directory tree.
 - **Multi-Language AST Skeletonization**: Built on Web Tree-Sitter supporting TypeScript, JavaScript, Python, Go, and Rust. It extracts interfaces, type definitions, function and method signatures while stripping bodies.
 - **Deterministic Token Budgeting**: Employs OpenAI's `cl100k_base` BPE tokenizer to strictly respect `--max-tokens`. Outputs are byte-for-byte identical across runs on the same commit.
 - **Automatic Secret Sanitization**: Detects and redacts API keys (OpenAI, Anthropic, Google, AWS, GitHub, Slack) and generic passwords with `[REDACTED_SECRET]` without dropping the file structure.
-- **Ignored Files Filtering**: Honors `.gitignore` and `.antigravityignore` rules while automatically skipping binary files, lockfiles (`package-lock.json`, `Cargo.lock`, etc.), and build outputs (`dist/`, `build/`, `target/`).
-- **MCP Server Support**: Provides standard I/O (stdio) MCP server exposing `pack_context` and `get_repo_skeleton` tools.
+- **Ignored Files Filtering**: Honors `.gitignore` and `.antigravityignore` rules while automatically skipping binary files, lockfiles (`package-lock.json`, `Cargo.lock`, etc.), and build outputs.
+- **MCP Server Support**: Native standard I/O (stdio) MCP server exposing `pack_context` and `get_repo_skeleton` tools.
 
 ---
 
 ## Installation
 
+> **Note:** This package is currently maintained directly on GitHub (not yet published to the public npm registry).
+
+### Quick Install (Zero Build Needed)
+
+Clone the repository and install runtime dependencies. Because the production `dist/` bundle is already included in the repo, you do not need to run a TypeScript build:
+
 ```bash
-npm install -g contextpacker-llm
-# or run directly with npx
-npx contextpacker-llm --help
+git clone https://github.com/vasco0-cmd/ContextPacker-LLM.git
+cd ContextPacker-LLM
+npm install
+npm link
+```
+
+After running `npm link`, the `contextpacker` command will be globally available in your terminal:
+```bash
+contextpacker --help
+```
+
+Alternatively, you can run the CLI directly without global linking:
+```bash
+node dist/cli.js --help
 ```
 
 ---
@@ -60,19 +78,25 @@ contextpacker --max-tokens 4000 --output packed_context.xml
 
 ## MCP Server Integration
 
-To connect `ContextPacker-LLM` to Claude Desktop, Cursor, or Antigravity, add the following to your MCP configuration file:
+### For Antigravity / Coding Agents
+When using Antigravity or AI coding assistants, you can simply provide the repository URL `https://github.com/vasco0-cmd/ContextPacker-LLM.git` and ask the agent to install it. The agent clones the repo, runs `npm install`, and immediately connects to `dist/cli.js --mcp`.
+
+### Configuration (Claude Desktop, Cursor, Antigravity)
+
+Add the server to your MCP configuration JSON (`claude_desktop_config.json` or Antigravity MCP settings):
 
 ```json
 {
   "mcpServers": {
     "contextpacker": {
       "command": "node",
-      "args": ["path/to/dist/cli.js", "--mcp"],
-      "env": {}
+      "args": ["<PATH_TO_REPO>/ContextPacker-LLM/dist/cli.js", "--mcp"]
     }
   }
 }
 ```
+
+*Replace `<PATH_TO_REPO>` with the absolute path where the repository is cloned.*
 
 ### Available MCP Tools
 
