@@ -1,0 +1,12 @@
+{
+  "name": "contextpacker-llm",
+  "displayName": "ContextPacker-LLM",
+  "version": "1.0.0",
+  "description": "High-performance repository context packing CLI and MCP server for LLMs.",
+  "author": "VASCO",
+  "publisher": "VASCO",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "main": "dist/cli.js"
+}
